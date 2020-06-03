@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+import axios from '../../axios';
 
 import Post from '../../components/Post/Post';
 import FullPost from '../../components/FullPost/FullPost';
@@ -8,21 +8,62 @@ import './Blog.css';
 
 class Blog extends Component {
     state = {
-        posts: []
+        posts: [],
+        selectedPostId: null,
+        error: false
     }
 
     componentDidMount() {
-        axios.get('https://jsonplaceholder.typicode.com/posts')
+        this.fetchData();
+    }
+
+    fetchData() {
+        console.log("fetching data...");
+        axios.get('/posts')
+            // axios.get('https://jsonplaceholder.typicode.com/posts')
             .then(response => {
-                this.setState({posts: response.data});
+                // const posts = response.data.slice(0, 4);
+                const posts = response.data;
+                // const updatedPosts = posts.map(post => {
+                //     return {
+                //         ...post,
+                //         author: 'Pan'
+                //     }
+                // })
+                this.setState({ posts: posts });
                 // console.log(response.data);
+            }).catch(error => {
+                this.setState({ error: error.message });
             });
     }
 
-    render () {
-        const posts = this.state.posts.map(post => {
-            return <Post key={post.id} title={post.title} author={post.userId} body={post.body}/>
+    postSelectedHandler = (id) => {
+        this.setState({ selectedPostId: id });
+    }
+
+    postDeletedHandler = (id) => {
+        let updatedPosts = [...this.state.posts];
+        updatedPosts = updatedPosts.filter((post, index) => {
+            return post.id !== id;
         });
+        this.setState({ posts: updatedPosts, selectedPostId: null });
+    }
+
+    postedDataHandler = () => {
+        this.fetchData();
+    }
+
+    render() {
+    let posts = <p style={{ textAlign: "center" }}>{this.state.error}</p>;
+        if (!this.state.error) {
+            posts = this.state.posts.map(post => {
+                return <Post
+                    key={post.id}
+                    title={post.title}
+                    author={post.author}
+                    clicked={this.postSelectedHandler.bind(this, post.id)} />
+            });
+        }
 
         return (
             <div>
@@ -30,10 +71,10 @@ class Blog extends Component {
                     {posts}
                 </section>
                 <section>
-                    <FullPost />
+                    <FullPost id={this.state.selectedPostId} delete={this.postDeletedHandler} />
                 </section>
                 <section>
-                    <NewPost />
+                    <NewPost postData={this.postedDataHandler} />
                 </section>
             </div>
         );

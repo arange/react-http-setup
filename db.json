@@ -1,13 +1,13 @@
 {
-    "posts": [
-        {
-            "id": 1,
-            "title": "hello",
-            "auther": "Pan",
-            "body": "this is post 1"
-        }
-    ],
-    "profile": {
-        "name": "pan zhan"
+  "posts": [
+    {
+      "title": "adfas",
+      "body": "asdfsad",
+      "author": "Pan",
+      "id": 1
     }
+  ],
+  "profile": {
+    "name": "pan zhan"
+  }
 }
