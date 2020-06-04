@@ -6,18 +6,20 @@ import * as serviceWorker from './serviceWorker';
 import Axios from 'axios';
 
 // setting global config for axios
-Axios.defaults.baseURL = "http://localhost:3004";
+
+Axios.defaults.baseURL = "https://jsonplaceholder.typicode.com";
+// Axios.defaults.baseURL = "http://localhost:3004";
 Axios.defaults.headers.common['Authorization'] = "AUTH TOKEN";
 Axios.defaults.headers.post['Content-Type'] = 'application/json';
 
 // interceptor, do things globally
 // var myInterceptor = 
 Axios.interceptors.request.use(request => {
-    console.log(request);
+    // console.log(request);
     // you can add some headers here, e.g. authorisation
     return request;
 }, error => {
-    console.log(error);
+    // console.log(error);
     return Promise.reject(error);
 });
 
@@ -25,10 +27,10 @@ Axios.interceptors.request.use(request => {
 // axios.interceptors.request.eject(myInterceptor);
 
 Axios.interceptors.response.use(response => {
-    console.log(response);
+    // console.log(response);
     return response;
 }, error => {
-    console.log(error);
+    // console.log(error);
     return Promise.reject(error);
 });
 

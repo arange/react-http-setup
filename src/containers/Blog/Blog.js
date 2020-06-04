@@ -1,84 +1,61 @@
-import React, { Component } from 'react';
-import axios from '../../axios';
-
-import Post from '../../components/Post/Post';
-import FullPost from '../../components/FullPost/FullPost';
-import NewPost from '../../components/NewPost/NewPost';
+import React, { Component, Suspense } from 'react';
+import { NavLink, Redirect, Route, Switch } from 'react-router-dom';
+import errorPage from '../../components/UI/ErrorPage/ErrorPage';
 import './Blog.css';
+import Posts from './Posts/Posts';
+// import asyncComponent from '../../hoc/asyncComponent';
+
+const NewPost = React.lazy(() => import('./NewPost/NewPost'));
+
+// const AsyncNewPost = asyncComponent(() => {
+//   return import('./NewPost/NewPost');
+// });
 
 class Blog extends Component {
-    state = {
-        posts: [],
-        selectedPostId: null,
-        error: false
-    }
+  state = {
+    authed: true
+  }
 
-    componentDidMount() {
-        this.fetchData();
-    }
+  render() {
+    return (
+      <div className='Blog'>
+        <header>
+          <nav>
+            <ul>
+              <li><NavLink
+                to='/posts'
+                activeClassName='active'
+                activeStyle={{
+                  color: "#feceab",
+                  textDecoration: "underline"
+                }}
+              >Home</NavLink></li>
+              <li><NavLink to={{
+                pathname: '/new-post',
+                hash: '#submit',
+                search: '?quick-submit=true'
+              }}>New Post</NavLink></li>
 
-    fetchData() {
-        console.log("fetching data...");
-        axios.get('/posts')
-            // axios.get('https://jsonplaceholder.typicode.com/posts')
-            .then(response => {
-                // const posts = response.data.slice(0, 4);
-                const posts = response.data;
-                // const updatedPosts = posts.map(post => {
-                //     return {
-                //         ...post,
-                //         author: 'Pan'
-                //     }
-                // })
-                this.setState({ posts: posts });
-                // console.log(response.data);
-            }).catch(error => {
-                this.setState({ error: error.message });
-            });
-    }
-
-    postSelectedHandler = (id) => {
-        this.setState({ selectedPostId: id });
-    }
-
-    postDeletedHandler = (id) => {
-        let updatedPosts = [...this.state.posts];
-        updatedPosts = updatedPosts.filter((post, index) => {
-            return post.id !== id;
-        });
-        this.setState({ posts: updatedPosts, selectedPostId: null });
-    }
-
-    postedDataHandler = () => {
-        this.fetchData();
-    }
-
-    render() {
-    let posts = <p style={{ textAlign: "center" }}>{this.state.error}</p>;
-        if (!this.state.error) {
-            posts = this.state.posts.map(post => {
-                return <Post
-                    key={post.id}
-                    title={post.title}
-                    author={post.author}
-                    clicked={this.postSelectedHandler.bind(this, post.id)} />
-            });
-        }
-
-        return (
-            <div>
-                <section className="Posts">
-                    {posts}
-                </section>
-                <section>
-                    <FullPost id={this.state.selectedPostId} delete={this.postDeletedHandler} />
-                </section>
-                <section>
-                    <NewPost postData={this.postedDataHandler} />
-                </section>
-            </div>
-        );
-    }
+            </ul>
+          </nav>
+        </header>
+        <Switch>
+          {this.state.authed ? <Route
+            path='/new-post'
+            render={() => (
+              <Suspense fallback={<div>loading...</div>}>
+                <NewPost />
+              </Suspense>
+            )} /> : null}
+          <Route path='/posts' component={Posts} />
+          <Redirect from="/" exact to="/posts" />
+          <Route render={errorPage} />
+          {/* <Route path='/' component={Posts} /> */}
+          {/* <Route path='/:id' exact component={FullPost} /> */}
+        </Switch>
+      </div>
+    );
+  }
 }
 
 export default Blog;
